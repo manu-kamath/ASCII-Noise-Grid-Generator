@@ -1,0 +1,5 @@
+{
+  "name": "ASCII Noise Grid Generator",
+  "description": "A web application to create and customize dynamic, animated ASCII noise grid backgrounds. Users can select shapes, colors, and tiling options to generate unique visual effects.",
+  "requestFramePermissions": []
+}
