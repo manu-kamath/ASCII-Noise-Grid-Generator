@@ -4,7 +4,14 @@ import { GeneratorConfig, Shape } from '../../types';
 
 @Component({
   selector: 'app-noise-grid',
-  templateUrl: './noise-grid.component.html',
+  template: `
+<div class="relative w-full h-full">
+  @if(config().transparentBg) {
+    <div class="absolute inset-0 w-full h-full" style="background-image: repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%); background-size: 20px 20px;"></div>
+  }
+  <canvas #noiseCanvas class="absolute inset-0 w-full h-full"></canvas>
+</div>
+  `,
   // Fix: Adhere to Angular v20+ best practices by removing redundant standalone property.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
