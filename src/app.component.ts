@@ -66,8 +66,8 @@ export class AppComponent {
     this.config.update(current => ({ ...current, ...newConfig }));
   }
 
-  downloadPng() {
-    this.noiseGrid?.exportHighResPng();
+  downloadPng(orientation: 'landscape' | 'portrait') {
+    this.noiseGrid?.exportHighResPng(orientation);
   }
 
   exportForWeb() {
