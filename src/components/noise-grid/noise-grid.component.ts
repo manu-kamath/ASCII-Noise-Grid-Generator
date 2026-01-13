@@ -1,6 +1,6 @@
 
 import { Component, ChangeDetectionStrategy, input, ViewChild, ElementRef, AfterViewInit, OnDestroy, effect } from '@angular/core';
-import { GeneratorConfig, Shape } from '../../types.ts';
+import { GeneratorConfig, Shape } from '../../types.js';
 
 @Component({
   selector: 'app-noise-grid',

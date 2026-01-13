@@ -2,7 +2,7 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.ts';
+import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.js';
 
 @Component({
   selector: 'app-settings-panel',
