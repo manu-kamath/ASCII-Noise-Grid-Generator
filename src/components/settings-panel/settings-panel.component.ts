@@ -166,11 +166,13 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.ts';
           <div class="w-full h-full rounded-md border-2 border-gray-400 pointer-events-none" [style.background-color]="initialConfig().foregroundColor"></div>
         </div>
 
-        <label class="text-gray-300 self-center">Shape Gradient</label>
-        <label class="relative inline-flex items-center cursor-pointer justify-self-end">
-          <input type="checkbox" class="sr-only peer" [checked]="initialConfig().useGradient" (change)="onUseGradientToggle($event.target.checked)">
-          <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-indigo-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-        </label>
+        <div class="col-span-2 flex items-center justify-between">
+          <label class="text-gray-300">Shape Gradient</label>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" [checked]="initialConfig().useGradient" (change)="onUseGradientToggle($event.target.checked)">
+            <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-indigo-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
 
         @if (!initialConfig().useGradient) {
           <label class="text-gray-300 self-center">Shape</label>

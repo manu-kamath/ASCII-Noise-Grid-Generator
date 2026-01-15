@@ -293,9 +293,18 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
     link.click();
   }
 
-  exportAsSvg(): void {
-    const width = 1920;
-    const height = 1080;
+  exportAsSvg(orientation: 'landscape' | 'portrait'): void {
+    let width: number;
+    let height: number;
+
+    if (orientation === 'portrait') {
+      width = 1080;
+      height = 1920;
+    } else { // default to landscape
+      width = 1920;
+      height = 1080;
+    }
+    
     const currentConfig = this.config();
     const fSize = this.fontSize;
 
@@ -387,7 +396,7 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
     const blob = new Blob([svgContent.trim()], { type: 'image/svg+xml' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'ascii-noise-grid.svg';
+    link.download = `ascii-noise-grid-${width}x${height}.svg`;
     link.click();
     URL.revokeObjectURL(link.href);
   }

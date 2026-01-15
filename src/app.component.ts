@@ -2,6 +2,7 @@
 import { Component, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
 import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component.ts';
 import { NoiseGridComponent } from './components/noise-grid/noise-grid.component.ts';
+import { HelpDialogComponent } from './components/help-dialog/help-dialog.component.ts';
 import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
 
 @Component({
@@ -9,13 +10,23 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
   standalone: true,
   template: `
 <div class="h-screen bg-gray-900 text-gray-100 flex flex-col p-4 overflow-hidden">
-  <header class="w-full max-w-7xl mx-auto text-center mb-4 flex-shrink-0">
-    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-      ASCII Noise Grid Generator
-    </h1>
-    <p class="mt-2 text-base text-gray-400">
-      Create stunning, dynamic backgrounds with customizable shapes and effects.
-    </p>
+  <header class="w-full max-w-7xl mx-auto mb-4 flex-shrink-0 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+        ASCII Noise Grid Generator
+      </h1>
+      <p class="mt-2 text-base text-gray-400">
+        Create stunning, dynamic backgrounds with customizable shapes and effects.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="bg-gray-700 text-indigo-300 text-xs font-semibold px-2.5 py-0.5 rounded-full">v1.0</span>
+      <button title="Help" class="text-gray-400 hover:text-white transition-colors duration-200" (click)="showHelp()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+    </div>
   </header>
 
   <main class="w-full max-w-7xl mx-auto flex-grow flex flex-col md:flex-row gap-4 min-h-0">
@@ -44,29 +55,14 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
         
         <hr class="border-gray-700">
 
-        <div class="w-full text-center">
-          <h2 class="text-xl font-bold text-gray-300 mb-3">Export Options</h2>
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-400">Export Options</label>
+          <button 
+            (click)="exportForWeb()"
+            class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
+            Download HTML
+          </button>
           <div class="grid grid-cols-2 gap-3">
-            <button 
-              (click)="exportForWeb()"
-              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
-              Download HTML
-            </button>
-            <button 
-              (click)="exportSvg()"
-              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
-              Download SVG
-            </button>
-            <button 
-              (click)="showExportInstructions('android')"
-              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
-              Android Guide
-            </button>
-            <button 
-              (click)="showExportInstructions('ios')"
-              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
-              iOS Guide
-            </button>
             <button 
               (click)="downloadPng('landscape')"
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 shadow-lg">
@@ -77,14 +73,28 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 shadow-lg">
               PNG Portrait
             </button>
+            <button 
+              (click)="exportSvg('landscape')"
+              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
+              SVG Landscape
+            </button>
+            <button 
+              (click)="exportSvg('portrait')"
+              class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
+              SVG Portrait
+            </button>
           </div>
         </div>
     </div>
   </main>
 </div>
+
+@if (showHelpDialog()) {
+  <app-help-dialog (close)="closeHelpDialog()"></app-help-dialog>
+}
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SettingsPanelComponent, NoiseGridComponent],
+  imports: [SettingsPanelComponent, NoiseGridComponent, HelpDialogComponent],
 })
 export class AppComponent {
   @ViewChild(NoiseGridComponent) noiseGrid!: NoiseGridComponent;
@@ -128,7 +138,8 @@ export class AppComponent {
     noiseOpacity: 0.3,
     shapeOpacity: 1.0,
   });
-
+  
+  showHelpDialog = signal(false);
   showSvgDebug = signal(false);
   lastUploadedSvg = signal<{ raw: string; path: string; viewBox: string; pathCount: number; otherElements: string[] } | null>(null);
   svgError = signal<string | null>(null);
@@ -149,8 +160,16 @@ export class AppComponent {
     this.noiseGrid?.exportForWeb();
   }
 
-  exportSvg() {
-    this.noiseGrid?.exportAsSvg();
+  exportSvg(orientation: 'landscape' | 'portrait') {
+    this.noiseGrid?.exportAsSvg(orientation);
+  }
+
+  showHelp() {
+    this.showHelpDialog.set(true);
+  }
+  
+  closeHelpDialog() {
+    this.showHelpDialog.set(false);
   }
 
   handleFileUpload(event: Event) {
@@ -228,28 +247,5 @@ export class AppComponent {
     };
     reader.readAsText(file);
     input.value = ''; // Reset file input
-  }
-
-  showExportInstructions(platform: 'android' | 'ios') {
-    const header = `--- NATIVE ${platform.toUpperCase()} IMPLEMENTATION GUIDE ---`;
-    const instructions = `Generating a live, animated background natively requires recreating the animation logic in your app's native language (Kotlin/Java for Android, Swift for iOS).\n\nA static PNG is easier to use. If you need the animation, here is the core logic to guide your developer:\n
-1.  **Canvas/Drawing Surface:** Use a custom View (Android) or UIView/SpriteKit Scene (iOS) as your drawing surface.
-
-2.  **Grid System:** Calculate the number of rows and columns based on the view size and a fixed font size. Store the characters in a 2D array.
-
-3.  **Character Set & Shape:** Pass the user's selected character set and shape data (as an SVG path or a pre-rendered bitmap) to your native view.
-
-4.  **Animation Loop:** Use a native animation mechanism (e.g., Android's Choreographer, iOS's CADisplayLink) to create a rendering loop.
-
-5.  **Drawing Frame:** On each frame:
-    - Draw the background color.
-    - Iterate through your 2D character grid.
-    - For each character's position, determine its opacity based on whether it falls within the shape's boundaries.
-    - Draw the character with the calculated color and opacity.
-    - Randomly replace a small percentage of characters in the grid to create the "noise" effect.
-
-This approach provides a performant, native version of the web animation.`;
-    
-    alert(`${header}\n\n${instructions}`);
   }
 }
