@@ -1,11 +1,12 @@
 
 import { Component, ChangeDetectionStrategy, signal, ViewChild, ElementRef } from '@angular/core';
-import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component.js';
-import { NoiseGridComponent } from './components/noise-grid/noise-grid.component.js';
-import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.js';
+import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component.ts';
+import { NoiseGridComponent } from './components/noise-grid/noise-grid.component.ts';
+import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   template: `
 <div class="h-screen bg-gray-900 text-gray-100 flex flex-col p-4 overflow-hidden">
   <header class="w-full max-w-7xl mx-auto text-center mb-4 flex-shrink-0">
@@ -82,7 +83,6 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.js';
   </main>
 </div>
   `,
-  // Fix: Use ChangeDetectionStrategy enum for change detection.
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SettingsPanelComponent, NoiseGridComponent],
 })
@@ -106,7 +106,7 @@ export class AppComponent {
   palettes: Palette[] = [
     { name: 'Nord', background: '#2E3440', foreground: '#ECEFF4' },
     { name: 'Solarized', background: '#002b36', foreground: '#839496' },
-    { name: 'Dracula', background: '#282a36', foreground: '#f8f8f2' },
+    { name: 'Dracula', background: '#282a36', foreground: '#f8f822' },
     { name: 'Cyberpunk', background: '#0c0c20', foreground: '#00f0ff' },
     { name: 'Retro', background: '#2d1b00', foreground: '#ffc800' },
   ];

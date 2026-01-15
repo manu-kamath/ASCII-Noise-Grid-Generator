@@ -1,9 +1,10 @@
 
 import { Component, ChangeDetectionStrategy, input, ViewChild, ElementRef, AfterViewInit, OnDestroy, effect } from '@angular/core';
-import { GeneratorConfig, Shape } from '../../types.js';
+import { GeneratorConfig, Shape } from '../../types.ts';
 
 @Component({
   selector: 'app-noise-grid',
+  standalone: true,
   template: `
 <div class="relative w-full h-full">
   @if(config().transparentBg) {
@@ -12,7 +13,6 @@ import { GeneratorConfig, Shape } from '../../types.js';
   <canvas #noiseCanvas class="absolute inset-0 w-full h-full"></canvas>
 </div>
   `,
-  // Fix: Adhere to Angular v20+ best practices by removing redundant standalone property.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoiseGridComponent implements AfterViewInit, OnDestroy {
@@ -55,18 +55,22 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);
     }
+    this.resizeObserver?.disconnect();
   }
 
+  private resizeObserver: ResizeObserver | null = null;
   private setupResizeObserver() {
-    const resizeObserver = new ResizeObserver(() => {
+    this.resizeObserver = new ResizeObserver(() => {
         this.initializeGrid();
     });
-    resizeObserver.observe(this.canvasRef.nativeElement.parentElement!);
+    this.resizeObserver.observe(this.canvasRef.nativeElement.parentElement!);
   }
 
   private initializeGrid(): void {
     const canvas = this.canvasRef.nativeElement;
     const parent = canvas.parentElement!;
+    if (!parent) return;
+
     const dpr = window.devicePixelRatio || 1;
     const rect = parent.getBoundingClientRect();
     canvas.width = rect.width * dpr;
@@ -112,6 +116,7 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
   private draw(): void {
     const currentConfig = this.config();
     const parent = this.canvasRef.nativeElement.parentElement!;
+    if (!parent) return;
     const rect = parent.getBoundingClientRect();
     const fSize = this.fontSize;
 

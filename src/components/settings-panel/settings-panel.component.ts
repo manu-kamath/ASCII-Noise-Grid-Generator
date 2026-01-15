@@ -2,10 +2,11 @@
 import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.js';
+import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.ts';
 
 @Component({
   selector: 'app-settings-panel',
+  standalone: true,
   imports: [FormsModule],
   template: `
 <div class="flex flex-col gap-6">
@@ -216,7 +217,6 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from '../../types.js';
   </div>
 </div>
   `,
-  // Fix: Adhere to Angular v20+ best practices by removing redundant standalone property.
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsPanelComponent {
