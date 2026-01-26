@@ -401,6 +401,93 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
     URL.revokeObjectURL(link.href);
   }
 
+  async exportAsGif(): Promise<void> {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    try {
+      if (!(window as any).GIF) {
+        await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js');
+      }
+
+      const workerBlobUrl = await this.getWorkerBlobUrl();
+
+      const width = this.canvasRef.nativeElement.width;
+      const height = this.canvasRef.nativeElement.height;
+      
+      const gif = new (window as any).GIF({
+        workers: 2,
+        quality: 10,
+        width: width,
+        height: height,
+        workerScript: workerBlobUrl,
+        background: this.config().backgroundColor
+      });
+
+      const frames = 30;
+      const delay = 50; // 20fps
+
+      for (let i = 0; i < frames; i++) {
+        this.draw();
+        gif.addFrame(this.canvasRef.nativeElement, { delay, copy: true });
+        await new Promise(resolve => setTimeout(resolve, 0)); 
+      }
+
+      await new Promise<void>((resolve, reject) => {
+        gif.on('finished', (blob: Blob) => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'ascii-noise.gif';
+          link.click();
+          URL.revokeObjectURL(link.href);
+          resolve();
+        });
+        gif.on('abort', () => reject(new Error('GIF export aborted')));
+        gif.render();
+      });
+
+    } catch (err) {
+      console.error('GIF Export Error:', err);
+      throw err;
+    } finally {
+      this.resumeAnimation();
+    }
+  }
+
+  private loadScript(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      document.body.appendChild(script);
+    });
+  }
+
+  private async getWorkerBlobUrl(): Promise<string> {
+    const response = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js');
+    if (!response.ok) throw new Error('Failed to fetch GIF worker script');
+    const text = await response.text();
+    const blob = new Blob([text], { type: 'application/javascript' });
+    return URL.createObjectURL(blob);
+  }
+
+  private resumeAnimation(): void {
+    if (!this.animationFrameId) {
+      const animate = () => {
+        this.draw();
+        this.animationFrameId = requestAnimationFrame(animate);
+      };
+      animate();
+    }
+  }
+
   exportForWeb(): void {
     const config = this.config();
     const escapedChars = config.characterSet.chars.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -548,3 +635,4 @@ export class NoiseGridComponent implements AfterViewInit, OnDestroy {
     URL.revokeObjectURL(link.href);
   }
 }
+    

@@ -62,6 +62,20 @@ import { GeneratorConfig, Shape, CharacterSet, Palette } from './types.ts';
             class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500">
             Download HTML
           </button>
+          <button 
+            (click)="exportGif()"
+            [disabled]="isExportingGif()"
+            class="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center">
+            @if (isExportingGif()) {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Exporting...</span>
+            } @else {
+              <span>Download GIF</span>
+            }
+          </button>
           <div class="grid grid-cols-2 gap-3">
             <button 
               (click)="downloadPng('landscape')"
@@ -143,6 +157,7 @@ export class AppComponent {
   showSvgDebug = signal(false);
   lastUploadedSvg = signal<{ raw: string; path: string; viewBox: string; pathCount: number; otherElements: string[] } | null>(null);
   svgError = signal<string | null>(null);
+  isExportingGif = signal(false);
 
   toggleSvgDebug() {
     this.showSvgDebug.update(v => !v);
@@ -162,6 +177,18 @@ export class AppComponent {
 
   exportSvg(orientation: 'landscape' | 'portrait') {
     this.noiseGrid?.exportAsSvg(orientation);
+  }
+
+  async exportGif() {
+    if (!this.noiseGrid) return;
+    this.isExportingGif.set(true);
+    try {
+      await this.noiseGrid.exportAsGif();
+    } catch (e) {
+      console.error("Failed to export GIF", e);
+    } finally {
+      this.isExportingGif.set(false);
+    }
   }
 
   showHelp() {
@@ -202,6 +229,36 @@ export class AppComponent {
           throw new Error('Could not parse SVG. Check file for syntax errors.');
         }
 
+        // --- SECURITY SANITIZATION START ---
+        // 1. Remove dangerous tags
+        const dangerousTags = ['script', 'object', 'iframe', 'embed', 'foreignObject', 'link', 'style'];
+        dangerousTags.forEach(tag => {
+          const elements = svgDoc.querySelectorAll(tag);
+          elements.forEach(el => el.remove());
+        });
+
+        // 2. Remove dangerous attributes from all elements
+        const allElements = svgDoc.querySelectorAll('*');
+        allElements.forEach(el => {
+          const attrs = el.getAttributeNames();
+          attrs.forEach(attr => {
+            // Remove event handlers (e.g., onclick, onmouseover)
+            if (attr.startsWith('on')) {
+              el.removeAttribute(attr);
+            }
+            // Remove javascript: pseudo-protocols in href/xlink:href
+            if ((attr === 'href' || attr === 'xlink:href') && 
+                el.getAttribute(attr)?.trim().toLowerCase().includes('javascript:')) {
+              el.removeAttribute(attr);
+            }
+          });
+        });
+
+        // Re-serialize the sanitized SVG for display
+        const serializer = new XMLSerializer();
+        const sanitizedText = serializer.serializeToString(svgDoc.documentElement);
+        // --- SECURITY SANITIZATION END ---
+
         const svgElement = svgDoc.querySelector('svg');
         const pathElements = svgDoc.querySelectorAll('path');
 
@@ -221,7 +278,7 @@ export class AppComponent {
         const viewBox = svgElement?.getAttribute('viewBox') ?? '0 0 24 24';
 
         this.lastUploadedSvg.set({
-          raw: text,
+          raw: sanitizedText, // Store the sanitized text, not the original 'text'
           path: combinedPaths,
           viewBox: viewBox,
           pathCount: pathElements.length,
